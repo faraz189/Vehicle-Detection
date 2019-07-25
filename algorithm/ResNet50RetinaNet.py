@@ -22,6 +22,7 @@ from keras_retinanet.utils.colors import label_color
 # noinspection PyUnresolvedReferences
 from keras_retinanet.utils.image import preprocess_image, resize_image
 from tqdm import tqdm
+from datetime import datetime
 
 from sort import *
 from utils import intersect
@@ -35,6 +36,10 @@ def get_session():
 
 
 def process_video(path_in, labels_to_names, model, skip_frames=1):
+    _script_starting_time = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+    _result_directory = os.path.join(os.getcwd(), 'results')
+    if not os.path.isdir(_result_directory):
+        os.makedirs(_result_directory)
     video_name = path_leaf(path_in)
     path_out = '{0}_result.mp4'.format(video_name.split(sep=".")[0])
     fps = 24
@@ -61,6 +66,7 @@ def process_video(path_in, labels_to_names, model, skip_frames=1):
     }
     line = [(450, 0), (450, 1080)]
 
+    _detections = []
     with tqdm(total=frame_count) as pbar:
         try:
             while True:
@@ -160,7 +166,18 @@ def process_video(path_in, labels_to_names, model, skip_frames=1):
                                     else:
                                         vehicles_counter[int(detection_data[i][0])] += 1
                                     # saves image file
-                                    cv2.imwrite("results/{0}_{1}_detection_{2}.jpg".format(video_name.split(sep=".")[0], vehicle_count, labels_to_names[int(detection_data[i][0])]), draw)
+                                    _image_file_name = "{0}_{1}_detection_{2}.jpg".format(
+                                        video_name.split(sep=".")[0],
+                                        vehicle_count,
+                                        labels_to_names[int(
+                                            detection_data[i][0])])
+                                    _detections.append({'detection_type': labels_to_names[int(
+                                                                            detection_data[i][0])],
+                                                        'datetime': datetime.now().strftime("%Y/%m/%d %H:%M:%S"),
+                                                        'file_screenshot': _image_file_name})
+
+                                    cv2.imwrite(os.path.join(_result_directory, _image_file_name,
+                                                             draw))
                                 i += 1
 
                     info = [
@@ -189,20 +206,22 @@ def process_video(path_in, labels_to_names, model, skip_frames=1):
             # export the result in a JSON file
             out.release()
             print("[INFO] Creating JSON file...")
-            jsonFile = {
-                "input_video": path_in,
-                "output_video": path_out,
-                "counters": {
-                    "caminhao": vehicles_counter[LABELID_CAMINHAO],
-                    "bitrem": vehicles_counter[LABELID_TREM],
-                    "moto": vehicles_counter[LABELID_MOTO],
-                    "onibus": vehicles_counter[LABELID_ONIBUS],
-                    "carro": vehicles_counter[LABELID_CARRO]
-                },
-                "screenshots": EBSUtils.taken_screenshots_array
-            }
 
-            json = libjson.dumps(jsonFile)
+            json_data = dict()
+            json_data['header'] = {'started at': _script_starting_time,
+                                   'finished_at': datetime.now().strftime("%Y/%m/%d %H:%M:%S"),
+                                   'path_screenshots': _result_directory,
+                                   'direction': 'LTR'}
+            json_data['video'] = {'path_original': path_in,
+                                  'path_output': path_out,
+                                  'recorded_at': '2019-05-04 17:51:31 (dummy value)'}
+            json_data['counters'] = {'truck': vehicles_counter[LABELID_CAMINHAO],
+                                     'bus': vehicles_counter[LABELID_ONIBUS],
+                                     'car': vehicles_counter[LABELID_CARRO],
+                                     'motorbike': vehicles_counter[LABELID_MOTO]}
+            json_data['detections'] = _detections
+
+            json = libjson.dumps(json_data, indent=4)
             f = open("json/result_%s.json" % (video_name.split(sep=".")[0]), "w")
             f.write(json)
             f.close()
@@ -233,18 +252,17 @@ def print_logs(**kwargs):
     logging.info('Loading weights from file = {0}'.format(kwargs['model']))
     logging.info(
         'Saving result video to file = {0}'.format('{0}_result.mp4'.format(kwargs['input_file'].split(sep=".")[0])))
-    logging.info('Saving images to folder = results')
 
 
 def init(**kwargs):
     for keys in ['input_file', 'model']:
         assert os.path.isfile(kwargs[keys]), 'Could not find {0}. Please check input parameters. ' \
                                              'If not sure, run the python file with --help flag'.format(keys)
-    if not os.path.isdir('results'):
-        os.makedirs('results')
+
     # if not os.path.isdir('frames'):
     #     os.makedirs('frames')
     EBSUtils.createfolderifnotexist(EBSUtils, "json")
+
 
 def main():
     logging.basicConfig(level=logging.INFO)
