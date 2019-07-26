@@ -210,7 +210,7 @@ def process_video(path_in, labels_to_names, model, skip_frames=1):
             json_data['header'] = {'started at': _script_starting_time,
                                    'finished_at': datetime.now().strftime("%Y/%m/%d %H:%M:%S"),
                                    'path_screenshots': _result_directory,
-                                   'direction': 'LTR'}
+                                   'direction': 'LTR (dummt value)'}
             json_data['video'] = {'path_original': path_in,
                                   'path_output': path_out,
                                   'recorded_at': '2019-05-04 17:51:31 (dummy value)'}
