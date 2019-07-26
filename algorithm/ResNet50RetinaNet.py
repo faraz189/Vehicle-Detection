@@ -228,7 +228,7 @@ def process_video(path_in, labels_to_names, model, skip_frames=1):
 
 def parse_arguments():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-i", "--input_file", type=str, default='video1.mp4', required=True,
+    parser.add_argument("-i", "--input_file", type=str, required=True,
                         help="Set the name of the video file which would be used as input to the model")
     parser.add_argument("-m", "--model", default='model.h5',
                         help="Set the name of the file which contain the model weights")
