@@ -176,8 +176,7 @@ def process_video(path_in, labels_to_names, model, skip_frames=1):
                                                         'datetime': datetime.now().strftime("%Y/%m/%d %H:%M:%S"),
                                                         'file_screenshot': _image_file_name})
 
-                                    cv2.imwrite(os.path.join(_result_directory, _image_file_name,
-                                                             draw))
+                                    cv2.imwrite(os.path.join(_result_directory, _image_file_name),draw)
                                 i += 1
 
                     info = [
