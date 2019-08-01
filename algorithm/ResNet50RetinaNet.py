@@ -9,6 +9,8 @@
 import argparse
 import logging
 import os
+import sys
+
 
 import cv2
 import keras
@@ -199,6 +201,9 @@ def process_video(path_in, labels_to_names, model, skip_frames=1):
                     out.write(draw)
                 counter = counter + 1
                 pbar.update(1)
+        except Exception as e:
+            print(e)
+            print(sys.exc_info()[0])
         finally:
             cap.release()
             cv2.destroyAllWindows()

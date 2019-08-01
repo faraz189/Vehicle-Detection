@@ -4,17 +4,17 @@ import cv2
 
 def pad_image(image, size = 0.1):
     borderType = cv2.BORDER_CONSTANT
-    top = int(size * src.shape[0])  # shape[0] = rows
+    top = int(size * image.shape[0])  # shape[0] = rows
     bottom = top
-    left = int(size * src.shape[1])  # shape[1] = cols
+    left = int(size * image.shape[1])  # shape[1] = cols
     right = left
-    dst = cv2.copyMakeBorder(src, top, bottom, left, right, borderType, None, [0, 0, 0])
+    dst = cv2.copyMakeBorder(image, top, bottom, left, right, borderType, None, [0, 0, 0])
     return dst
 
 
-def barrel_distort(src, ):
-    width = src.shape[1]
-    height = src.shape[0]
+def barrel_distort(image):
+    width = image.shape[1]
+    height = image.shape[0]
 
     distCoeff = np.zeros((4, 1), np.float64)
 
@@ -36,9 +36,9 @@ def barrel_distort(src, ):
     cam[1, 2] = height / 2.0  # define center y
     cam[0, 0] = 15.  # define focal length x
     cam[1, 1] = 15.  # define focal length y
-    src = pad_image(image=src, size=0.1)
+    image = pad_image(image=image, size=0.1)
 # here the undistortion will be computed
-    dst = cv2.undistort(src, cam, distCoeff)
+    dst = cv2.undistort(image, cam, distCoeff)
     return dst
 
 
