@@ -27,7 +27,7 @@ from datetime import datetime
 from sort import *
 from utils import intersect
 from utils import path_leaf
-
+from barrel import barrel_distort
 
 def get_session():
     config = tf.ConfigProto()
@@ -75,7 +75,7 @@ def process_video(path_in, labels_to_names, model, skip_frames=1):
                     break
                 if counter % skip_frames == 0:
                     bgr = cv2.cvtColor(draw, cv2.COLOR_RGB2BGR)
-
+                    bgr = barrel_distort(bgr)
                     # preprocess image for network
                     image = preprocess_image(bgr)
                     image, scale = resize_image(image)
@@ -195,7 +195,7 @@ def process_video(path_in, labels_to_names, model, skip_frames=1):
                                     cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 0, 255), 2)
                     # after the code is stable / results are good, we will remove it
                     # cv2.putText(draw, str(vehicle_count), (100, 200), cv2.FONT_HERSHEY_DUPLEX, 5.0, (0, 255, 255), 10)
-                    # cv2.imwrite('frames/img%08d.jpg' % counter, draw)
+                    cv2.imwrite('frames/img%08d.jpg' % counter, draw)
                     out.write(draw)
                 counter = counter + 1
                 pbar.update(1)
