@@ -31,6 +31,7 @@ from utils import intersect
 from utils import path_leaf
 from barrel import barrel_distort
 
+
 def get_session():
     config = tf.ConfigProto()
     config.gpu_options.allow_growth = True
@@ -73,11 +74,12 @@ def process_video(path_in, labels_to_names, model, skip_frames=1):
         try:
             while True:
                 ret, draw = cap.read()
+                draw = barrel_distort(draw)
                 if not ret:
                     break
                 if counter % skip_frames == 0:
                     bgr = cv2.cvtColor(draw, cv2.COLOR_RGB2BGR)
-                    bgr = barrel_distort(bgr)
+                    # bgr = barrel_distort(bgr)
                     # preprocess image for network
                     image = preprocess_image(bgr)
                     image, scale = resize_image(image)
