@@ -1,0 +1,10 @@
+*.pyc
+yolov3.weights
+*.caffemodel
+screenshots/*
+!screenshots/.gitkeep
+videos/*
+!videos/.gitkeep
+log.txt
+.idea
+*.h5
